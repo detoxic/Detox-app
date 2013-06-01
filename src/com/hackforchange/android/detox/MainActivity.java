@@ -1,5 +1,6 @@
 package com.hackforchange.android.detox;
 
+import android.location.Location;
 import android.os.Bundle;
 import android.util.Log;
 
@@ -9,24 +10,49 @@ import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GooglePlayServicesClient.ConnectionCallbacks;
 import com.google.android.gms.common.GooglePlayServicesClient.OnConnectionFailedListener;
 import com.google.android.gms.location.LocationClient;
+import com.google.android.gms.maps.CameraUpdate;
+import com.google.android.gms.maps.CameraUpdateFactory;
+import com.google.android.gms.maps.GoogleMap;
+import com.google.android.gms.maps.SupportMapFragment;
+import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.plus.PlusClient;
 
-public class MainActivity extends SherlockFragmentActivity implements ConnectionCallbacks, OnConnectionFailedListener {
+public class MainActivity extends SherlockFragmentActivity implements ConnectionCallbacks,
+		OnConnectionFailedListener {
 	private static final String TAG = "MainActivity";
 
+	private GoogleMap mMap;
 	private LocationClient mLocationClient;
 	private PlusClient mPlusClient;
+
+	private ConnectionResult mConnectionResult;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_main);
-		
+
 		mLocationClient = new LocationClient(this, this, this);
+
+		SupportMapFragment fragment = (SupportMapFragment) getSupportFragmentManager()
+				.findFragmentById(R.id.map_fragment);
+		mMap = fragment.getMap();
+		mMap.setMyLocationEnabled(true);
+
+//		mPlusClient = new PlusClient.Builder(this, this, this).build();
+//		mPlusClient.connect();
+	}
+
+	@Override
+	protected void onStart() {
+		super.onStart();
 		mLocationClient.connect();
-		
-		mPlusClient = new PlusClient.Builder(this, this, this).build();
-		mPlusClient.connect();
+	}
+
+	@Override
+	protected void onStop() {
+		super.onStop();
+		mLocationClient.disconnect();
 	}
 
 	@Override
@@ -39,7 +65,7 @@ public class MainActivity extends SherlockFragmentActivity implements Connection
 	@Override
 	public void onConnectionFailed(ConnectionResult result) {
 		Log.d(TAG, "[onConnectionFailed]");
-		
+		mConnectionResult = result;
 	}
 
 	@Override
@@ -50,13 +76,16 @@ public class MainActivity extends SherlockFragmentActivity implements Connection
 		} else {
 			Log.d(TAG, "connectionHint = null");
 		}
-		
+
+		Location location = mLocationClient.getLastLocation();
+		LatLng target = new LatLng(location.getLatitude(), location.getLongitude());
+		CameraUpdate update = CameraUpdateFactory.newLatLngZoom(target, 14);
+		mMap.moveCamera(update);
 	}
 
 	@Override
 	public void onDisconnected() {
 		Log.d(TAG, "[onDisconnected]");
-		
 	}
 
 }
