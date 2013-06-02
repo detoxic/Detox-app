@@ -180,6 +180,8 @@ public class MainActivity extends SherlockFragmentActivity implements Connection
 			moveMapToLocation(target, 15);
 
 			callUpdateSitesService(target);
+			
+			// TODO request location updates
 		}
 
 		if (mPendingGeofenceRequest) {

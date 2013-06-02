@@ -7,6 +7,8 @@ import android.os.Bundle;
 import android.support.v4.app.LoaderManager.LoaderCallbacks;
 import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
+import android.view.View;
+import android.view.View.OnClickListener;
 import android.widget.TextView;
 
 import com.actionbarsherlock.app.SherlockFragmentActivity;
@@ -21,8 +23,10 @@ import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.hackforchange.android.detox.provider.DetoxContract.Sites;
+import com.hackforchange.android.detox.util.Constants;
 
-public class SiteDetailActivity extends SherlockFragmentActivity implements LoaderCallbacks<Cursor> {
+public class SiteDetailActivity extends SherlockFragmentActivity implements
+		LoaderCallbacks<Cursor>, OnClickListener {
 	private static final String TAG = "SiteDetailActivity";
 
 	private String mRegistryId;
@@ -52,6 +56,7 @@ public class SiteDetailActivity extends SherlockFragmentActivity implements Load
 			}
 		}
 
+		findViewById(R.id.button_take_action).setOnClickListener(this);
 		siteName = (TextView) findViewById(R.id.site_name);
 		siteAddress1 = (TextView) findViewById(R.id.site_address1);
 		siteAddress2 = (TextView) findViewById(R.id.site_address2);
@@ -153,5 +158,19 @@ public class SiteDetailActivity extends SherlockFragmentActivity implements Load
 			break;
 		}
 		return super.onOptionsItemSelected(item);
+	}
+
+	@Override
+	public void onClick(View v) {
+		switch (v.getId()) {
+		case R.id.button_take_action:
+			// temporary, for demo
+			Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(Constants.SUBMIT_PETITION_URL));
+			startActivity(intent);
+			break;
+
+		default:
+			break;
+		}
 	}
 }
