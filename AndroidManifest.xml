@@ -41,6 +41,11 @@
 
         <service android:name=".service.SitesUpdateService" />
 
+        <provider
+            android:name=".provider.DetoxProvider"
+            android:authorities="com.hackforchange.android.detox"
+            android:exported="true" />
+
         <meta-data
             android:name="com.google.android.maps.v2.API_KEY"
             android:value="AIzaSyDEycK5YKNTueaXSCVsiVo_s7cYM2fMfYk" />

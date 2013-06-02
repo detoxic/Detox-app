@@ -5,6 +5,8 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import android.app.IntentService;
+import android.content.ContentResolver;
+import android.content.ContentValues;
 import android.content.Intent;
 import android.util.Log;
 
@@ -25,10 +27,19 @@ public class SitesUpdateService extends IntentService implements Listener<JSONOb
 	private static final String FUSION_TABLE_NAME = "1LN4iEN6XqiNGC39hS2FInp8F5O0bKFyLTwe0vjs";
 	private static final double LAT_LNG_ADJUST = 0.005;
 
-	private static final String[] COLUMNS = { Sites.REGISTRY_ID, Sites.LATITUDE, Sites.LONGITUDE };
 	private static final int INDEX_REGISTRY_ID = 0;
 	private static final int INDEX_LATITUDE = 1;
 	private static final int INDEX_LONGITUDE = 2;
+	private static final int INDEX_PRIMARY_NAME = 3;
+	private static final int INDEX_ADDRESS = 4;
+	private static final int INDEX_CITY = 5;
+	private static final int INDEX_STATE_NAME = 6;
+	private static final int INDEX_STATE_CODE = 7;
+	private static final int INDEX_INTEREST_TYPES = 8;
+	private static final int INDEX_DETAIL_URL = 9;
+	private static final String[] COLUMNS = { Sites.REGISTRY_ID, Sites.LATITUDE, Sites.LONGITUDE,
+			Sites.PRIMARY_NAME, Sites.ADDRESS, Sites.CITY, Sites.STATE_NAME, Sites.STATE_CODE,
+			Sites.INTEREST_TYPES, Sites.DETAIL_URL };
 
 	private static final String COLUMN_PROJECTION = buildColumnProjection();
 	private static final String BASE_SQL = "SELECT " + COLUMN_PROJECTION + " from "
@@ -59,7 +70,7 @@ public class SitesUpdateService extends IntentService implements Listener<JSONOb
 
 		LatLng latLng = intent.getParcelableExtra(EXTRA_LATLNG);
 		if (latLng == null) return;
-		
+
 		Log.d(TAG, String.format("latitude=%f, longitude=%f", latLng.latitude, latLng.longitude));
 		LatLng minBounds = computeBounds(latLng, -LAT_LNG_ADJUST);
 		LatLng maxBounds = computeBounds(latLng, LAT_LNG_ADJUST);
@@ -69,7 +80,7 @@ public class SitesUpdateService extends IntentService implements Listener<JSONOb
 				minBounds.longitude, maxBounds.longitude);
 		Log.d(TAG, sql);
 
-		// web call
+		// make web call
 		JSONRequestWithParams request = new JSONRequestWithParams(Request.Method.GET,
 				Constants.FUSION_TABLE_QUERY_URL, null, this, this);
 		request.setParameter(Constants.PARAM_SQL, sql);
@@ -94,19 +105,34 @@ public class SitesUpdateService extends IntentService implements Listener<JSONOb
 			JSONArray rows = response.getJSONArray("rows");
 
 			final int numRows = rows.length();
+			if (numRows < 1) return;
+			
+			ContentValues[] cv = new ContentValues[numRows];
 			for (int i = 0; i < numRows; i++) {
 				JSONArray row = rows.getJSONArray(i);
-				String registryId = row.getString(INDEX_REGISTRY_ID);
-				double lat = row.getDouble(INDEX_LATITUDE);
-				double lng = row.getDouble(INDEX_LONGITUDE);
-
-//				double d = row.getDouble(0);
-				Log.d(TAG, String.format("%d: %s, %f, %f", i, registryId, lat, lng));
-//				Log.d(TAG, String.format("%d: %f", i, d));
+				cv[i] = convertRowToValues(row);
 			}
+			
+			ContentResolver resolver = getContentResolver();
+			resolver.delete(Sites.CONTENT_URI, null, null);
+			resolver.bulkInsert(Sites.CONTENT_URI, cv);
 		} catch (JSONException e) {
 			e.printStackTrace();
 		}
 	}
 
+	private ContentValues convertRowToValues(JSONArray row) throws JSONException {
+		ContentValues values = new ContentValues();
+		values.put(Sites.REGISTRY_ID, row.getString(INDEX_REGISTRY_ID));
+		values.put(Sites.LATITUDE, row.getDouble(INDEX_LATITUDE));
+		values.put(Sites.LONGITUDE, row.getDouble(INDEX_LONGITUDE));
+		values.put(Sites.PRIMARY_NAME, row.getString(INDEX_PRIMARY_NAME));
+		values.put(Sites.ADDRESS, row.getString(INDEX_ADDRESS));
+		values.put(Sites.CITY, row.getString(INDEX_CITY));
+		values.put(Sites.STATE_NAME, row.getString(INDEX_STATE_NAME));
+		values.put(Sites.STATE_CODE, row.getString(INDEX_STATE_CODE));
+		values.put(Sites.INTEREST_TYPES, row.getString(INDEX_INTEREST_TYPES));
+		values.put(Sites.DETAIL_URL, row.getString(INDEX_DETAIL_URL));
+		return values;
+	}
 }

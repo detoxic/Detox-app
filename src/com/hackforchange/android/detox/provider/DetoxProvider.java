@@ -34,7 +34,8 @@ public class DetoxProvider extends ContentProvider {
 	@Override
 	public boolean onCreate() {
 		Log.d(TAG, "[onCreate]");
-		return false;
+		dbHelper = new DetoxDatabase(getContext());
+		return true;
 	}
 
 	@Override
@@ -53,41 +54,86 @@ public class DetoxProvider extends ContentProvider {
 	public Cursor query(Uri uri, String[] projection, String selection, String[] selectionArgs,
 			String sortOrder) {
 		final SQLiteDatabase db = dbHelper.getReadableDatabase();
-		final int match = uriMatcher.match(uri);
-		SelectionBuilder builder = buildExpandedSelection(uri, match);
+		SelectionBuilder builder = buildSelection(uri);
 		return builder.where(selection, selectionArgs).query(db, projection, sortOrder);
 	}
 
 	@Override
 	public Uri insert(Uri uri, ContentValues values) {
 		Log.d(TAG, "[insert]");
-		return null;
+		Uri newUri;
+		final SQLiteDatabase db = dbHelper.getWritableDatabase();
+		switch (uriMatcher.match(uri)) {
+		case SITES:
+			db.insert(Tables.SITES, null, values);
+			newUri = Sites.buildSiteUri(values.getAsString(Sites.REGISTRY_ID));
+			getContext().getContentResolver().notifyChange(uri, null);
+			return newUri;
+
+		default:
+			throw new UnsupportedOperationException("Unknown uri: " + uri);
+		}
 	}
 
 	@Override
-	public int delete(Uri uri, String selection, String[] selectionArgs) {
+    public int delete(Uri uri, String selection, String[] selectionArgs) {
 		Log.d(TAG, "[delete]");
-		return 0;
-	}
-
+        final SQLiteDatabase db = dbHelper.getWritableDatabase();
+        final SelectionBuilder builder = buildSelection(uri);
+        int count = builder.where(selection, selectionArgs).delete(db);
+        getContext().getContentResolver().notifyChange(uri, null);
+        return count;
+    }
+	
 	@Override
 	public int update(Uri uri, ContentValues values, String selection, String[] selectionArgs) {
 		Log.d(TAG, "[update]");
 		return 0;
 	}
-
-	private SelectionBuilder buildExpandedSelection(Uri uri, int match) {
+	
+	private SelectionBuilder buildSelection(Uri uri) {
 		final SelectionBuilder builder = new SelectionBuilder();
-		
-		switch (match) {
+		switch (uriMatcher.match(uri)) {
 		case SITES:
 			return builder.table(Tables.SITES);
 		case SITE_ID:
 			final String id = Sites.getSiteId(uri);
 			return builder.table(Tables.SITES).where(Sites.REGISTRY_ID + "=?", id);
-		default:
+        default:
 			throw new UnsupportedOperationException("Unknown uri: " + uri);
+        }
+	}
+	
+	public int bulkInsert(Uri uri, ContentValues[] contentValues) {
+		final SQLiteDatabase db = dbHelper.getWritableDatabase();
+		int numInserted = 0;
+		String table;
 
+		final int match = uriMatcher.match(uri);
+		switch (match) {
+		case SITES:
+			table = Tables.SITES;
+			break;
+		default:
+			throw new UnsupportedOperationException("unsupported uri: " + uri);
 		}
+
+		try {
+			db.beginTransaction();
+			for (ContentValues values : contentValues) {
+				db.insert(table, null, values);
+				db.yieldIfContendedSafely();
+			}
+
+			db.setTransactionSuccessful();
+			numInserted = contentValues.length;
+		} finally {
+			db.endTransaction();
+			if (numInserted > 0) {
+				getContext().getContentResolver().notifyChange(uri, null);
+				Log.d(TAG, "[bulkInsert] successful");
+			}
+		}
+		return numInserted;
 	}
 }

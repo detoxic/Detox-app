@@ -7,20 +7,16 @@ public class DetoxContract {
 
 	interface SitesColumns {
 		String REGISTRY_ID = "REGISTRY_ID";
-//		String DETAIL_URL = "FRS_FACILITY_DETAIL_REPORT_URL";
 		String LATITUDE = "LATITUDE";
 		String LONGITUDE = "LONGITUDE";
-//		String PRIMARY_NAME = "PRIMARY_NAME";
-//		String ADDRESS = "LOCATION_ADDRESS";
-//		String CITY = "CITY_NAME";
-//		String STATE_NAME = "STATE_NAME";
-//		String STATE_CODE = "STATE_CODE";
-//		String POSTAL_CODE = "POSTAL_CODE";
-		
-		/* array idnex values to match */
-		int INDEX_REGISTRY_ID = 0;
-		int INDEX_LATITUDE = 1;
-		int INDEX_LONGTITUDE = 2;
+		String PRIMARY_NAME = "PRIMARY_NAME";
+		String ADDRESS = "LOCATION_ADDRESS";
+		String CITY = "CITY_NAME";
+		String STATE_NAME = "STATE_NAME";
+		String STATE_CODE = "STATE_CODE";
+		String POSTAL_CODE = "POSTAL_CODE";
+		String INTEREST_TYPES = "INTEREST_TYPES";
+		String DETAIL_URL = "FRS_FACILITY_DETAIL_REPORT_URL";
 	}
 
 	interface PetitionColumns {

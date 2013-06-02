@@ -29,6 +29,14 @@ public class DetoxDatabase extends SQLiteOpenHelper {
 				+ SitesColumns.REGISTRY_ID + " TEXT NOT NULL,"
 				+ SitesColumns.LATITUDE + " REAL,"
 				+ SitesColumns.LONGITUDE + " REAL,"
+				+ SitesColumns.PRIMARY_NAME + " TEXT,"
+				+ SitesColumns.ADDRESS + " TEXT,"
+				+ SitesColumns.CITY + " TEXT,"
+				+ SitesColumns.STATE_NAME + " TEXT,"
+				+ SitesColumns.STATE_CODE + " TEXT,"
+				+ SitesColumns.POSTAL_CODE + " TEXT,"
+				+ SitesColumns.INTEREST_TYPES + " TEXT,"
+				+ SitesColumns.DETAIL_URL + " TEXT,"
 				+ "UNIQUE (" + SitesColumns.REGISTRY_ID + ") ON CONFLICT REPLACE)");
 	}
 
