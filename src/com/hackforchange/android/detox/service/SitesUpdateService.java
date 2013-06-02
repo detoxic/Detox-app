@@ -25,7 +25,7 @@ public class SitesUpdateService extends IntentService implements Listener<JSONOb
 	private static final String TAG = "SitesUpdateService";
 
 	private static final String FUSION_TABLE_NAME = "1LN4iEN6XqiNGC39hS2FInp8F5O0bKFyLTwe0vjs";
-	private static final double LAT_LNG_ADJUST = 0.005;
+	private static final double LAT_LNG_ADJUST = 0.01;
 
 	private static final int INDEX_REGISTRY_ID = 0;
 	private static final int INDEX_LATITUDE = 1;

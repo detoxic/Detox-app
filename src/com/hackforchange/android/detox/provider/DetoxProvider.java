@@ -55,7 +55,9 @@ public class DetoxProvider extends ContentProvider {
 			String sortOrder) {
 		final SQLiteDatabase db = dbHelper.getReadableDatabase();
 		SelectionBuilder builder = buildSelection(uri);
-		return builder.where(selection, selectionArgs).query(db, projection, sortOrder);
+		Cursor cursor = builder.where(selection, selectionArgs).query(db, projection, sortOrder);
+		cursor.setNotificationUri(getContext().getContentResolver(), uri);
+		return cursor;
 	}
 
 	@Override

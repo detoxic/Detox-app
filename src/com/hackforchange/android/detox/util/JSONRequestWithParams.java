@@ -50,7 +50,7 @@ public class JSONRequestWithParams extends JsonObjectRequest {
                 encodedUrl.append('&');
             }
             url = encodedUrl.toString().replace("+", "%20");
-            Log.d("JSONRequestWithParams", url);
+//            Log.d("JSONRequestWithParams", url);
             return url;
         } catch (UnsupportedEncodingException uee) {
             throw new RuntimeException("Encoding not supported: " + paramsEncoding, uee);
