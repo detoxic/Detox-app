@@ -39,6 +39,8 @@
             </intent-filter>
         </activity>
 
+        <service android:name=".service.SitesUpdateService" />
+
         <meta-data
             android:name="com.google.android.maps.v2.API_KEY"
             android:value="AIzaSyDEycK5YKNTueaXSCVsiVo_s7cYM2fMfYk" />

@@ -1,11 +1,13 @@
 package com.hackforchange.android.detox;
 
+import android.content.Intent;
 import android.location.Location;
 import android.os.Bundle;
 import android.util.Log;
 
 import com.actionbarsherlock.app.SherlockFragmentActivity;
 import com.actionbarsherlock.view.Menu;
+import com.actionbarsherlock.view.MenuItem;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GooglePlayServicesClient.ConnectionCallbacks;
 import com.google.android.gms.common.GooglePlayServicesClient.OnConnectionFailedListener;
@@ -16,6 +18,7 @@ import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.plus.PlusClient;
+import com.hackforchange.android.detox.service.SitesUpdateService;
 
 public class MainActivity extends SherlockFragmentActivity implements ConnectionCallbacks,
 		OnConnectionFailedListener {
@@ -23,8 +26,8 @@ public class MainActivity extends SherlockFragmentActivity implements Connection
 
 	private GoogleMap mMap;
 	private LocationClient mLocationClient;
-	private PlusClient mPlusClient;
 
+	private PlusClient mPlusClient;
 	private ConnectionResult mConnectionResult;
 
 	@Override
@@ -57,9 +60,20 @@ public class MainActivity extends SherlockFragmentActivity implements Connection
 
 	@Override
 	public boolean onCreateOptionsMenu(Menu menu) {
-		Log.d(TAG, "[onCreateOptionsMenu]");
 		getSupportMenuInflater().inflate(R.menu.main, menu);
 		return true;
+	}
+	
+	@Override
+	public boolean onOptionsItemSelected(MenuItem item) {
+		switch (item.getItemId()) {
+		case R.id.action_settings:
+			break;
+
+		default:
+			break;
+		}
+		return super.onOptionsItemSelected(item);
 	}
 
 	@Override
@@ -81,6 +95,10 @@ public class MainActivity extends SherlockFragmentActivity implements Connection
 		LatLng target = new LatLng(location.getLatitude(), location.getLongitude());
 		CameraUpdate update = CameraUpdateFactory.newLatLngZoom(target, 14);
 		mMap.moveCamera(update);
+		
+		Intent intent = new Intent(this, SitesUpdateService.class);
+		intent.putExtra(SitesUpdateService.EXTRA_LATLNG, target);
+		startService(intent);
 	}
 
 	@Override

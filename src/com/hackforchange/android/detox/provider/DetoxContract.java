@@ -16,6 +16,11 @@ public class DetoxContract {
 //		String STATE_NAME = "STATE_NAME";
 //		String STATE_CODE = "STATE_CODE";
 //		String POSTAL_CODE = "POSTAL_CODE";
+		
+		/* array idnex values to match */
+		int INDEX_REGISTRY_ID = 0;
+		int INDEX_LATITUDE = 1;
+		int INDEX_LONGTITUDE = 2;
 	}
 
 	interface PetitionColumns {
